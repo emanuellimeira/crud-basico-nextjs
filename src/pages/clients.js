@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react'
 import { 
     Flex,
@@ -15,6 +14,7 @@ import {
     FormErrorMessage
 } from '@chakra-ui/react'
 import { InputForm } from '../components/input'
+import api from './services/api'
 
 export default function Clientes() {
 
@@ -53,17 +53,27 @@ export default function Clientes() {
         return true
     }
 
-    const handleSubmitCreateClient = (e) => {
+    const handleSubmitCreateClient = async (e) => {
         e.preventDefault()
        // console.log({name, email})
        
        if(!isValidFormData()) return
 
-       setClients(clients.concat({_id: new Date().getMilliseconds().toString(), name, email}))
+       try {
 
-       setName('')
-       setEmail('')
-       toggleFormState()
+        const {data} = await api.post('/clients', {name, email})
+
+        setClients(clients.concat(data.data))
+
+        setName('')
+        setEmail('')
+        toggleFormState()
+
+       } catch(err) {
+           console.log(err)
+       }
+
+       
     }
 
     const handleSubmitUpdateClient = (e) => {

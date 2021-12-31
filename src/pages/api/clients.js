@@ -1,5 +1,5 @@
 import Client from "../../models/Client";
-import dbConnect from "../../../services/db";
+import dbConnect from "../services/db";
 
 dbConnect()
 
@@ -23,7 +23,7 @@ export default async function handler(req, res) {
 
                 const {name, email} = req.body
 
-                if(name && email) throw 'invalid data'
+                if(!name && !email) throw 'invalid data'
 
                 const client = await Client.create({name, email})
 
