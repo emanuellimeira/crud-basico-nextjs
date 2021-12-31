@@ -1,5 +1,5 @@
-import Client from "../../models/Client";
-import dbConnect from "../services/db";
+import Client from "../../../models/Client";
+import dbConnect from "../../services/db";
 
 dbConnect()
 

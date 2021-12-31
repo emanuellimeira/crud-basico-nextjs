@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { 
     Flex,
     Box,
@@ -11,19 +11,21 @@ import {
     Tr,
     Th,
     Td,
-    FormErrorMessage
+    FormErrorMessage,
+    useToast 
 } from '@chakra-ui/react'
 import { InputForm } from '../components/input'
 import api from './services/api'
 
 export default function Clientes() {
 
-    const [clients, setClients] = useState([])
+    const toast = useToast()
 
+    const [clients, setClients] = useState([])
     const [isFormOpen, setIsFormOpen] = useState(false)
+    const [isLoading, setIsLoading] = useState(false)
 
     const [id, setId] = useState(null)
-
     const [name, setName] = useState('')
     const [email, setEmail] = useState('')
 
@@ -61,6 +63,8 @@ export default function Clientes() {
 
        try {
 
+        setIsLoading(true)
+
         const {data} = await api.post('/clients', {name, email})
 
         setClients(clients.concat(data.data))
@@ -68,6 +72,15 @@ export default function Clientes() {
         setName('')
         setEmail('')
         toggleFormState()
+        setIsLoading(false)
+
+        toast({
+            title: 'Client created.',
+            description: "Your client was created Successfully.",
+            status: 'success',
+            duration: 9000,
+            isClosable: true,
+          })
 
        } catch(err) {
            console.log(err)
@@ -76,22 +89,38 @@ export default function Clientes() {
        
     }
 
-    const handleSubmitUpdateClient = (e) => {
+    const handleSubmitUpdateClient = async (e, _id) => {
         e.preventDefault()
        // console.log({name, email})
        
        if(!isValidFormData()) return
 
-       setClients(clients.map(client => client._id === id ? {name, email, _id: id} : client))
+       try {
 
-       setName('')
-       setEmail('')
-       setId(null)
-       toggleFormState()
+        setIsLoading(true)
+        
+        await api.put(`/clients/${_id}`, {name, email})
+        setClients(clients.map(client => client._id === id ? {name, email, _id: id} : client))
+
+        setName('')
+        setEmail('')
+        setId(null)
+        toggleFormState()
+        setIsLoading(false)
+       } catch(err) {
+        console.log(err)
+       }
+       
     }
 
-    const handleDeleteClient = (_id) => {
-        setClients(clients.filter(client => client._id !== _id))
+    const handleDeleteClient = async (_id) => {
+        try {
+            await api.delete(`/clients/${_id}`)
+            setClients(clients.filter(client => client._id !== _id))
+        } catch (err) {
+            //console.log(err)
+        }
+        
     }
 
     const handleChangeName = (text) => {
@@ -114,6 +143,13 @@ export default function Clientes() {
     const toggleFormState = () => {
         setIsFormOpen(!isFormOpen)
     }
+
+    useEffect(() => {
+        api.get('/clients').then(({data}) => {
+            //console.log(data.data)
+            setClients(data.data)
+        })
+    }, [])
 
     return(
         <Box margin="5">
@@ -143,7 +179,7 @@ export default function Clientes() {
             error={errors.email}
             />
     
-                <Button colorScheme='gray' size='md' alignSelf="flex-end" type="submit">{id? 'Atualizar' : 'Cadastrar' }</Button>
+                <Button colorScheme='gray' size='md' alignSelf="flex-end" type="submit" isLoading={isLoading}>{id? 'Atualizar' : 'Cadastrar' }</Button>
             </VStack>
         )}
 
