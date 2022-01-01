@@ -16,6 +16,8 @@ import {
 } from '@chakra-ui/react'
 import { InputForm } from '../components/input'
 import api from './services/api'
+import Moment from 'react-moment'
+import 'moment-timezone'
 
 export default function Clientes() {
 
@@ -151,6 +153,9 @@ export default function Clientes() {
         })
     }, [])
 
+    const dateToFormat = '1976-04-19T12:59-0500';
+    
+
     return(
         <Box margin="5">
             <Flex color="white" justifyContent="space-between" >
@@ -189,6 +194,7 @@ export default function Clientes() {
         <Tr>
         <Th textColor="white">Nome</Th>
         <Th textColor="white">E-mail</Th>
+        <Th textColor="white">Data</Th>
         <Th textColor="white">Actions</Th>
         </Tr>
     </Thead>
@@ -198,6 +204,7 @@ export default function Clientes() {
             <Tr key={client.email}>
             <Td>{client.name}</Td>
             <Td>{client.email}</Td>
+            <Td><Moment format="DD/MM/YYYY">{client.createdAd}</Moment></Td>
             <Td>
                 <Flex justifyContent="space-between">
                 <Button colorScheme='yellow' size='sm' fontSize="smaller" alignSelf="flex-end" mr="2" onClick={() => handleShowUpdateClientForm(client)}>Editar</Button>
